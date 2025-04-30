@@ -1,0 +1,45 @@
+{
+  "name": "insight",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "~2",
+    "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-sql": "~2.2.0",
+    "@unocss/reset": "66.1.0-beta.10",
+    "@vueuse/core": "^13.1.0",
+    "echarts": "^5.6.0",
+    "pinia": "^3.0.2",
+    "vue": "^3.5.13",
+    "vue-echarts": "^7.0.3",
+    "vue-router": "4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@vicons/antd": "^0.13.0",
+    "@vicons/carbon": "^0.13.0",
+    "@vicons/fa": "^0.13.0",
+    "@vicons/fluent": "^0.13.0",
+    "@vicons/ionicons4": "^0.13.0",
+    "@vicons/ionicons5": "^0.13.0",
+    "@vicons/material": "^0.13.0",
+    "@vicons/tabler": "^0.13.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "naive-ui": "^2.41.0",
+    "typescript": "~5.6.2",
+    "unocss": "66.1.0-beta.10",
+    "url": "^0.11.4",
+    "vfonts": "^0.0.3",
+    "vite": "^6.0.3",
+    "vite-plugin-vue-devtools": "^7.7.2",
+    "vue-tsc": "^2.1.10"
+  }
+}
