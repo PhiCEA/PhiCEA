@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useJobStore } from "./job";
 import { computedAsync } from "@vueuse/core";
 import { useDatabase } from "@/components/common";
+import { computed } from "vue";
 
 interface ErrorLogSumary {
   load: number;
@@ -32,6 +33,36 @@ const useLogStore = defineStore("errorLog", () => {
       return [];
     }
   }, []);
+
+  const toltalTime = computedAsync<string>(async (_onCancel) => {
+    if (jobs.currentJob) {
+      const db = await useDatabase();
+      const result = await db.select<[{ total: number }]>(
+        "SELECT extract(EPOCH from max(timestamp) - min(timestamp))::DOUBLE PRECISION as total FROM error_log WHERE job_id = $1;",
+        [jobs.currentJob.id]
+      );
+
+      const sec = result[0].total;
+      // 计算秒数
+      const seconds = Math.floor(sec % 60);
+      // 计算分钟数
+      const minutes = Math.floor(sec / 60);
+      // 计算小时数
+      const hours = Math.floor(minutes / 60);
+      // 计算天数
+      const days = Math.floor(hours / 24);
+      const duration = {
+        days,
+        hours: hours % 24,
+        minutes: minutes % 60,
+        seconds,
+      };
+      // @ts-ignore
+      return new Intl.DurationFormat("zh-cn").format(duration);
+    } else {
+      return "";
+    }
+  }, "");
 
   const errors = computedAsync<ErrorLog[]>(async (_onCancel) => {
     if (jobs.currentJob) {
@@ -76,9 +107,19 @@ const useLogStore = defineStore("errorLog", () => {
     }
   }, []);
 
+  const iterations = computed(() => {
+    if (errors.value.length > 0) {
+      return errors.value[errors.value.length - 1].iters;
+    } else {
+      return null;
+    }
+  });
+
   return {
     summary,
     errors,
+    toltalTime,
+    iterations,
   };
 });
 

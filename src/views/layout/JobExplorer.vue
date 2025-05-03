@@ -8,7 +8,7 @@
     <n-drawer-content>
       <template #header>
         <div class="flex justify-between items-center">
-          <div select-none>Job List</div>
+          <div select-none>任务列表</div>
           <div>
             <n-button @click="handleImport" class="grow-0"> 导入 </n-button>
           </div>

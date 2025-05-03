@@ -20,7 +20,7 @@
         </n-flex>
       </template>
       <template #default>
-        <span class="text-xs">算例列表</span>
+        <span class="text-xs">任务列表</span>
       </template>
     </n-popover>
     <template v-for="act in activities">

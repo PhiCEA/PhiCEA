@@ -1,9 +1,37 @@
 <template>
-  <v-chart class="h-110 w-full" :option="optionSummary" :autoresize="autoresize" />
-  <v-chart class="h-110 w-full" :option="optionError" :autoresize="autoresizeError" />
+  <div>
+    <n-h1 px-10 pt-8 select-none> 过程分析 </n-h1>
+    <n-card :bordered="false">
+      <n-grid :cols="3" :y-gap="8" px-xl>
+        <n-gi>
+          <n-statistic label="任务ID" :value="jobs.currentJob?.id" />
+        </n-gi>
+        <n-gi :span="2">
+          <n-statistic label="任务名" :value="jobs.currentJob?.name" />
+        </n-gi>
+        <n-gi>
+          <n-statistic label="时间" :value="logs.toltalTime" />
+        </n-gi>
+        <n-gi>
+          <n-statistic label="迭代" :value="`${logs.iterations} 次`" />
+        </n-gi>
+      </n-grid>
+    </n-card>
+  </div>
+  <v-chart
+    class="h-110 w-full"
+    :option="optionSummary"
+    :autoresize="autoresize"
+  />
+  <v-chart
+    class="h-110 w-full"
+    :option="optionError"
+    :autoresize="autoresizeError"
+  />
 </template>
 
 <script setup lang="ts">
+import { NGrid, NGi, NStatistic, NH1, NCard } from "naive-ui";
 import { computed } from "vue";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
@@ -29,6 +57,7 @@ import type {
 } from "echarts/components";
 import { ErrorLog, useLogStore } from "@/stores/errorLog";
 import { CallbackDataParams } from "echarts/types/dist/shared";
+import { useJobStore } from "@/stores/job";
 
 use([
   TooltipComponent,
@@ -86,6 +115,7 @@ const msFormatter = (sec: number) => {
   }
 };
 const logs = useLogStore();
+const jobs = useJobStore();
 
 const optionSummary = computed<EChartsOption>(() => ({
   animation: false,
