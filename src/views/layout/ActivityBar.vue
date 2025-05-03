@@ -1,13 +1,10 @@
 <template>
-  <n-flex :size="0" vertical align="center" ref="bar">
+  <n-flex :size="0" vertical align="center">
     <n-popover
       style="padding: 5px 10px"
       trigger="hover"
       :delay="popoverDelay"
-      :duration="popoverDuration"
-      :animated="popoverAnimation"
       placement="right"
-      @update:show="handleUpdateShow"
     >
       <template #trigger>
         <n-flex
@@ -30,11 +27,8 @@
       <n-popover
         trigger="hover"
         :delay="popoverDelay"
-        :duration="popoverDuration"
-        :animated="popoverAnimation"
         placement="right"
         style="padding: 5px 10px"
-        @update:show="handleUpdateShow"
       >
         <template #trigger>
           <router-link
@@ -60,12 +54,11 @@
 
 <script setup lang="ts">
 import { NFlex, NPopover, NIcon } from "naive-ui";
-import { ref, useTemplateRef } from "vue";
+import { ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { ChartLineData } from "@vicons/carbon";
 import { AppsList24Regular } from "@vicons/fluent";
 import JobExplorer from "./JobExplorer.vue";
-import { useElementHover } from "@vueuse/core";
 
 const activities = [
   {
@@ -90,27 +83,7 @@ const handleClickLink = (key: string) => {
 };
 
 /* Popover */
-const bar = useTemplateRef("bar");
-// @ts-ignore
-const isBarHoverd = useElementHover(bar, { delayEnter: 0, delayLeave: 0 });
-
-const popoverDuration = ref(100); // ms
-const popoverDelay = ref(500); // ms
-const popoverAnimation = ref(true);
-const handleUpdateShow = (show: boolean) => {
-  if (!show) {
-    if (isBarHoverd.value) {
-      popoverDuration.value = 0;
-      popoverDelay.value = 0;
-      popoverAnimation.value = false;
-    } else {
-      popoverDuration.value = 100;
-      popoverDelay.value = 500;
-      popoverAnimation.value = true;
-    }
-  } else {
-  }
-};
+const popoverDelay = 500; // ms
 
 /* Job Explorer */
 const showExplorer = ref(false);
