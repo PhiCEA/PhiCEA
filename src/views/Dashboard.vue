@@ -1,23 +1,38 @@
 <template>
-  <div>
-    <n-h1 px-10 pt-8 select-none> 过程分析 </n-h1>
-    <n-card :bordered="false">
-      <n-grid :cols="3" :y-gap="8" px-xl>
-        <n-gi>
-          <n-statistic label="任务ID" :value="jobs.currentJob?.id" />
-        </n-gi>
-        <n-gi :span="2">
-          <n-statistic label="任务名" :value="jobs.currentJob?.name" />
-        </n-gi>
-        <n-gi>
-          <n-statistic label="时间" :value="logs.toltalTime" />
-        </n-gi>
-        <n-gi>
-          <n-statistic label="迭代" :value="`${logs.iterations} 次`" />
-        </n-gi>
-      </n-grid>
-    </n-card>
-  </div>
+  <n-flex mx-10 pt-8 justify="space-between" align="end">
+    <n-h1 select-none> 过程分析 </n-h1>
+    <n-button
+      class="mx-xl h-min"
+      text
+      icon-placement="right"
+      @click="handleDisplayDetails"
+    >
+      <template #icon>
+        <n-icon>
+          <component :is="displayDetails ? IosArrowUp : IosArrowDown" />
+        </n-icon>
+      </template>
+      <template #default>
+        <span>详情</span>
+      </template>
+    </n-button>
+  </n-flex>
+  <n-card v-if="displayDetails" mx-xl :bordered="false">
+    <n-grid :cols="3" :y-gap="8">
+      <n-gi>
+        <n-statistic label="任务ID" :value="jobs.currentJob?.id" />
+      </n-gi>
+      <n-gi :span="2">
+        <n-statistic label="任务名" :value="jobs.currentJob?.name" />
+      </n-gi>
+      <n-gi>
+        <n-statistic label="时间" :value="logs.toltalTime" />
+      </n-gi>
+      <n-gi>
+        <n-statistic label="迭代" :value="`${logs.iterations} 次`" />
+      </n-gi>
+    </n-grid>
+  </n-card>
   <v-chart
     class="h-110 w-full"
     :option="optionSummary"
@@ -31,8 +46,18 @@
 </template>
 
 <script setup lang="ts">
-import { NGrid, NGi, NStatistic, NH1, NCard } from "naive-ui";
-import { computed } from "vue";
+import {
+  NGrid,
+  NGi,
+  NStatistic,
+  NH1,
+  NCard,
+  NFlex,
+  NButton,
+  NIcon,
+} from "naive-ui";
+import { IosArrowDown, IosArrowUp } from "@vicons/ionicons4";
+import { computed, ref } from "vue";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
 import { LineChart } from "echarts/charts";
@@ -82,6 +107,11 @@ type EChartsOption = ComposeOption<
 
 // provide(THEME_KEY, "dark");
 
+const displayDetails = ref(false);
+const handleDisplayDetails = () => {
+  displayDetails.value = !displayDetails.value;
+};
+
 const autoresize = {
   throttle: 20,
 };
@@ -117,6 +147,8 @@ const msFormatter = (sec: number) => {
 const logs = useLogStore();
 const jobs = useJobStore();
 
+const axisLabelSize = 13;
+
 const optionSummary = computed<EChartsOption>(() => ({
   animation: false,
   legend: {},
@@ -129,18 +161,31 @@ const optionSummary = computed<EChartsOption>(() => ({
   },
   xAxis: {
     type: "value",
+    axisLabel: {
+      fontSize: axisLabelSize,
+    },
   },
   yAxis: [
     {
       type: "value",
       name: "耗时",
+      nameTextStyle: {
+        fontSize: axisLabelSize,
+      },
       axisLabel: {
         formatter: msFormatter,
+        fontSize: axisLabelSize,
       },
     },
     {
       type: "value",
       name: "迭代次数",
+      nameTextStyle: {
+        fontSize: axisLabelSize,
+      },
+      axisLabel: {
+        fontSize: axisLabelSize,
+      },
     },
   ],
   toolbox: {
@@ -242,6 +287,9 @@ const optionError = computed<EChartsOption>(() => ({
   },
   xAxis: {
     type: "value",
+    axisLabel: {
+      fontSize: axisLabelSize,
+    },
   },
   yAxis: {
     type: "log",
@@ -263,6 +311,7 @@ const optionError = computed<EChartsOption>(() => ({
           return value.toExponential();
         }
       },
+      fontSize: axisLabelSize,
     },
   },
   toolbox: {
