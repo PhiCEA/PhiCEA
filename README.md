@@ -1,6 +1,6 @@
 # Insight
 
-分析计算误差的轻量级工具，以postgres数据库作为数据源与缓存。
+分析计算误差的轻量级工具，以PostgreSQL数据库作为数据源与缓存。
 
 ## Roadmap
 
