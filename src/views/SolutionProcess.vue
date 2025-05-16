@@ -1,45 +1,61 @@
 <template>
-  <n-flex mx-10 pt-8 justify="space-between" align="end">
-    <n-h1 select-none> 过程分析 </n-h1>
-    <n-button
-      class="mx-xl h-min"
-      text
-      icon-placement="right"
-      @click="handleDisplayDetails"
-    >
-      <template #icon>
-        <n-icon>
-          <component :is="displayDetails ? IosArrowUp : IosArrowDown" />
-        </n-icon>
-      </template>
-      <template #default>
-        <span>详情</span>
-      </template>
-    </n-button>
-  </n-flex>
-  <n-card v-if="displayDetails" mx-xl :bordered="false">
-    <n-grid :cols="3" :y-gap="8">
-      <n-gi>
-        <n-statistic label="任务ID" :value="jobs.currentJob?.id" />
-      </n-gi>
-      <n-gi :span="2">
-        <n-statistic label="任务名" :value="jobs.currentJob?.name" />
-      </n-gi>
-      <n-gi>
-        <n-statistic label="时间" :value="logs.toltalTime" />
-      </n-gi>
-      <n-gi>
-        <n-statistic label="迭代" :value="`${logs.iterations} 次`" />
-      </n-gi>
-    </n-grid>
-  </n-card>
+  <div mx-10 pt-8>
+    <h1 select-none font-medium mb-sm text="3xl #1F2225">过程分析</h1>
+    <n-flex class="ml-0.5 h-min" :size="18" align="center">
+      <n-button text @click="showParams = true"> 参数 </n-button>
+      <n-button text icon-placement="right" @click="handleDisplayDetails">
+        <template #icon>
+          <n-icon>
+            <component :is="displayDetails ? IosArrowUp : IosArrowDown" />
+          </n-icon>
+        </template>
+        <template #default>
+          <span>详情</span>
+        </template>
+      </n-button>
+      <n-divider vertical />
+      <n-switch v-model:value="isComparing">
+        <template #checked-icon>
+          <n-icon :component="RectangleLandscape12Regular" />
+        </template>
+        <template #unchecked-icon>
+          <n-icon :component="SplitscreenRound" />
+        </template>
+      </n-switch>
+    </n-flex>
+  </div>
+  <div class="mx-xl">
+    <n-card v-if="displayDetails" :bordered="false">
+      <n-grid :cols="3" :y-gap="8" :x-gap="12">
+        <n-gi
+          v-for="opt in detailsOptions"
+          :span="opt.span ?? 1"
+          :key="opt.label"
+        >
+          <n-statistic :label="opt.label">
+            <n-ellipsis>
+              {{ opt.value }}
+            </n-ellipsis>
+          </n-statistic>
+        </n-gi>
+      </n-grid>
+    </n-card>
+  </div>
+  <n-modal v-model:show="showParams">
+    <parameter-card style="width: 600px" />
+  </n-modal>
+
   <v-chart
-    class="h-110 w-full"
+    class="w-full"
+    :class="chartHeightClass"
+    :theme="matplotlibTheme"
     :option="optionSummary"
     :autoresize="autoresize"
   />
   <v-chart
-    class="h-110 w-full"
+    class="w-full"
+    :class="chartHeightClass"
+    :theme="matplotlibTheme"
     :option="optionError"
     :autoresize="autoresizeError"
   />
@@ -50,11 +66,14 @@ import {
   NGrid,
   NGi,
   NStatistic,
-  NH1,
   NCard,
   NFlex,
   NButton,
   NIcon,
+  NModal,
+  NEllipsis,
+  NDivider,
+  NSwitch,
 } from "naive-ui";
 import { IosArrowDown, IosArrowUp } from "@vicons/ionicons4";
 import { computed, ref } from "vue";
@@ -80,9 +99,14 @@ import type {
   LegendComponentOption,
   DatasetComponentOption,
 } from "echarts/components";
-import { ErrorLog, useLogStore } from "@/stores/errorLog";
 import { CallbackDataParams } from "echarts/types/dist/shared";
+import type { ErrorLog, ErrorLogSumary } from "@/stores/errorLog";
+import { useLogStore } from "@/stores/errorLog";
 import { useJobStore } from "@/stores/job";
+import ParameterCard from "./layout/ParameterCard.vue";
+import matplotlibTheme from "@assets/matplotlib.theme.json";
+import { SplitscreenRound } from "@vicons/material";
+import { RectangleLandscape12Regular } from "@vicons/fluent";
 
 use([
   TooltipComponent,
@@ -107,18 +131,48 @@ type EChartsOption = ComposeOption<
 
 // provide(THEME_KEY, "dark");
 
-const displayDetails = ref(false);
+const logs = useLogStore();
+const jobs = useJobStore();
+
+/*  模型详情  */
+const displayDetails = ref(true);
 const handleDisplayDetails = () => {
   displayDetails.value = !displayDetails.value;
 };
+const iterForatter = new Intl.NumberFormat(navigator.language);
+const detailsOptions = computed(() => [
+  {
+    label: "任务ID",
+    value: jobs.currentJob?.id ?? "-",
+  },
+  {
+    label: "任务名",
+    value: jobs.currentJob?.name ?? "-",
+    span: 2,
+  },
+  {
+    label: "时间",
+    value: logs.toltalTime,
+  },
+  {
+    label: "迭代",
+    value: jobs.currentJob ? `${iterForatter.format(logs.iterations)} 次` : "-",
+  },
+]);
 
+/* 折线图 */
+const isComparing = ref(false);
+const chartHeightClass = computed(() => [
+  isComparing.value ? "h-full" : "h-50vh",
+]);
 const autoresize = {
   throttle: 20,
 };
 const autoresizeError = {
   throttle: 250,
 };
-const msFormatter = (sec: number) => {
+
+const secFormatter = (sec: number) => {
   // 计算分钟数
   const minutes = Math.floor(sec / 60);
   // 计算剩余的秒数
@@ -144,25 +198,73 @@ const msFormatter = (sec: number) => {
     return minutes + "分种" + formattedSeconds + "秒";
   }
 };
-const logs = useLogStore();
-const jobs = useJobStore();
 
-const axisLabelSize = 13;
+const axisLabelSize = 14;
 
 const optionSummary = computed<EChartsOption>(() => ({
   animation: false,
-  legend: {},
+  legend: {
+    top: "20px",
+    textStyle: {
+      fontSize: axisLabelSize,
+      fontFamily: "Noto Sans SC",
+    },
+  },
   dataset: {
     dimensions: ["load", "cost", "iters", "load"],
     source: logs.summary as any,
   },
   tooltip: {
     trigger: "axis",
+    textStyle: {
+      fontSize: axisLabelSize + 1,
+      fontFamily: "Noto Sans SC",
+    },
+    formatter: (params) => {
+      params = params as CallbackDataParams[];
+      const tooltip_error = params
+        .map((param) => {
+          // Ensure param.value is defined and properly typed
+          const value = param.value as ErrorLogSumary;
+          const key = param.dimensionNames![param.encode!.y[0]];
+          const point = value[key];
+          const name = param.seriesName;
+          const color = param.color;
+          let formattedItem;
+          if (key === "cost") {
+            if (point === null) {
+              formattedItem = "-";
+            } else {
+              formattedItem = secFormatter(point);
+            }
+          } else {
+            formattedItem = point;
+          }
+          return `<div class="flex justify-between leading-relaxed">
+                    <div>
+                      <span class="inline-block mr-1 h-2.5 w-2.5 rounded-full" style="background-color: ${color};"></span>
+                      <span>${name}</span>
+                    </div>
+                    <span class="ml-5 font-600">${formattedItem}</span>
+                  </div>`;
+        })
+        .join("");
+
+      const data = params[0]?.data as ErrorLog;
+
+      return `<div>
+        <div mb-2>
+          Load <span class="pl-1 font-600">${data.load}</span>
+        </div>
+        ${tooltip_error}
+      </div>`;
+    },
   },
   xAxis: {
     type: "value",
     axisLabel: {
       fontSize: axisLabelSize,
+      fontFamily: "Noto Sans SC",
     },
   },
   yAxis: [
@@ -171,10 +273,12 @@ const optionSummary = computed<EChartsOption>(() => ({
       name: "耗时",
       nameTextStyle: {
         fontSize: axisLabelSize,
+        fontFamily: "Noto Sans SC",
       },
       axisLabel: {
-        formatter: msFormatter,
+        formatter: secFormatter,
         fontSize: axisLabelSize,
+        fontFamily: "Noto Sans SC",
       },
     },
     {
@@ -182,9 +286,11 @@ const optionSummary = computed<EChartsOption>(() => ({
       name: "迭代次数",
       nameTextStyle: {
         fontSize: axisLabelSize,
+        fontFamily: "Noto Sans SC",
       },
       axisLabel: {
         fontSize: axisLabelSize,
+        fontFamily: "Noto Sans SC",
       },
     },
   ],
@@ -199,10 +305,16 @@ const optionSummary = computed<EChartsOption>(() => ({
     {
       type: "slider",
       filterMode: "none",
+      textStyle: {
+        fontFamily: "Noto Sans SC",
+      },
     },
     {
       type: "inside",
       filterMode: "none",
+      textStyle: {
+        fontFamily: "Noto Sans SC",
+      },
     },
   ],
   series: [
@@ -215,15 +327,16 @@ const optionSummary = computed<EChartsOption>(() => ({
         y: 1,
       },
       sampling: "lttb",
-      tooltip: {
-        valueFormatter(value: any, _dataIndex: any) {
-          if (value === null) {
-            return "-";
-          } else {
-            return msFormatter(value);
-          }
-        },
-      },
+      // 统一样式
+      // tooltip: {
+      //   valueFormatter(value: any, _dataIndex: any) {
+      //     if (value === null) {
+      //       return "-";
+      //     } else {
+      //       return secFormatter(value);
+      //     }
+      //   },
+      // },
     },
     {
       type: "line",
@@ -248,16 +361,22 @@ const formatError = (value: number | null) => {
 
 const optionError = computed<EChartsOption>(() => ({
   animation: false,
-  legend: {},
+  legend: {
+    top: "20px",
+    textStyle: {
+      fontFamily: "Noto Sans SC",
+    },
+  },
   dataset: {
     dimensions: ["iters", "error_u", "error_phi"],
     source: logs.errors as any[],
   },
   tooltip: {
     trigger: "axis",
-    // valueFormatter(value, _dataIndex) {
-    //   return formatError(value as number | null);
-    // },
+    textStyle: {
+      fontSize: axisLabelSize + 1,
+      fontFamily: "Noto Sans SC",
+    },
     formatter: (params) => {
       params = params as CallbackDataParams[];
       const tooltip_error = params
@@ -267,28 +386,31 @@ const optionError = computed<EChartsOption>(() => ({
           const error = value[param.dimensionNames![param.encode!.y[0]]];
           const name = param.seriesName;
           const color = param.color;
-          return `<div class="flex justify-between">
+          return `<div class="flex justify-between leading-relaxed">
                     <div>
                       <span class="inline-block mr-1 h-2.5 w-2.5 rounded-full" style="background-color: ${color};"></span>
                       <span>${name}</span>
                     </div>
-                    <span class="pl-5 fw-900">${formatError(error)}</span>
+                    <span class="pl-5 font-600">${formatError(error)}</span>
                   </div>`;
         })
         .join("");
 
       const data = params[0]?.data as ErrorLog;
 
-      return `<div style="font: 14px / 21px "Microsoft YaHei;">
-        load    <span class="fw-900">${data.load}</span>
-        ${tooltip_error}
-      </div>`;
+      return `<div>
+                <div mb-2>
+                  Load <span class="pl-1 font-600">${data.load}</span>
+                </div>
+                ${tooltip_error}
+              </div>`;
     },
   },
   xAxis: {
     type: "value",
     axisLabel: {
       fontSize: axisLabelSize,
+      fontFamily: "Noto Sans SC",
     },
   },
   yAxis: {
@@ -312,6 +434,7 @@ const optionError = computed<EChartsOption>(() => ({
         }
       },
       fontSize: axisLabelSize,
+      fontFamily: "Noto Sans SC",
     },
   },
   toolbox: {
@@ -327,9 +450,15 @@ const optionError = computed<EChartsOption>(() => ({
       type: "slider",
       startValue: 1,
       endValue: 1000,
+      textStyle: {
+        fontFamily: "Noto Sans SC",
+      },
     },
     {
       type: "inside",
+      textStyle: {
+        fontFamily: "Noto Sans SC",
+      },
     },
   ],
   series: [
@@ -353,6 +482,9 @@ const optionError = computed<EChartsOption>(() => ({
     },
   ],
 }));
+
+/* Parameters card */
+const showParams = ref(false);
 </script>
 
 <style scoped></style>

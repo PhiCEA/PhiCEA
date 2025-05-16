@@ -4,10 +4,12 @@ import { computedAsync } from "@vueuse/core";
 import { useDatabase } from "@/components/common";
 import { computed } from "vue";
 
-interface ErrorLogSumary {
+export interface ErrorLogSumary {
   load: number;
   iters: number;
   cost: number | null;
+
+  [key: string]: number | null;
 }
 
 export interface ErrorLog {
@@ -58,11 +60,11 @@ const useLogStore = defineStore("errorLog", () => {
         seconds,
       };
       // @ts-ignore
-      return new Intl.DurationFormat("zh-cn").format(duration);
+      return new Intl.DurationFormat(navigator.language).format(duration);
     } else {
-      return "";
+      return "-";
     }
-  }, "");
+  }, "-");
 
   const errors = computedAsync<ErrorLog[]>(async (_onCancel) => {
     if (jobs.currentJob) {
@@ -109,9 +111,9 @@ const useLogStore = defineStore("errorLog", () => {
 
   const iterations = computed(() => {
     if (errors.value.length > 0) {
-      return errors.value[errors.value.length - 1].iters;
+      return errors.value[errors.value.length - 1].iters!;
     } else {
-      return null;
+      return 0;
     }
   });
 

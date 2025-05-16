@@ -14,7 +14,7 @@ struct JobInfo {
     queue: String,
     n: i32,
     nodes: Vec<String>,
-    parameters: String,
+    parameters: Option<String>,
 }
 
 lazy_static! {
@@ -56,42 +56,33 @@ fn parse_log_csv(logs: &str) -> Result<(JobInfo, String)> {
 
     let parameters = PARAMS_PATTERN
         .find(params_str)
-        .map_or(String::from(""), |mat| mat.as_str().to_string());
+        .map(|mat| mat.as_str().to_owned());
     let first_timestamp = TIMESTAMP_PATTERN
-        .captures(logs)
-        .map(|cap| {
-            cap.iter()
-                .skip(1)
-                .flatten()
-                .map(|m| m.as_str())
-                .collect::<String>()
-        })
-        .unwrap();
-    let default_job_info = JobInfo {
-        id: first_timestamp,
-        name: String::from("Unknown"),
-        queue: String::from("Unknown"),
-        n: 0,
-        nodes: vec![],
-        parameters: String::from(""),
-    };
+        .find(logs)
+        .map(|mat| mat.as_str().to_owned())
+        .unwrap(); // 一定有匹配
 
-    let job_info = JOB_INFO_PATTERN
-        .captures(job_info_str)
-        .map_or(default_job_info, |cap| JobInfo {
+    let job_info = match JOB_INFO_PATTERN.captures(job_info_str) {
+        Some(cap) => JobInfo {
             id: cap[1].parse().ok().unwrap(),
-            name: cap[2].to_string(),
-            queue: cap[3].to_string(),
+            name: cap[2].to_owned(),
+            queue: cap[3].to_owned(),
             n: cap[4].parse().ok().unwrap(),
-            nodes: cap
-                .get(5)
-                .unwrap()
-                .as_str()
+            nodes: cap[5]
                 .split(',')
-                .map(|s| s.trim_matches(&[' ', '\'']).to_string())
+                .map(|s| s.trim_matches(&[' ', '\'']).to_owned())
                 .collect(),
             parameters,
-        });
+        },
+        None => JobInfo {
+            id: first_timestamp,
+            name: String::from("Unknown"),
+            queue: String::from("Unknown"),
+            n: 0,
+            nodes: vec![],
+            parameters,
+        },
+    };
 
     let logs = remaining
         .par_lines()

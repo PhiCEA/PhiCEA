@@ -7,8 +7,10 @@ export interface JobInfo {
   name: string;
   queue: string;
   num_cpu: number;
+  parameters?: object;
 }
 
+// FIXME: 错误处理 addJob, removeJob
 const useJobStore = defineStore("job", () => {
   const databasePromise = useDatabase();
 
@@ -36,6 +38,17 @@ const useJobStore = defineStore("job", () => {
     });
   }
 
+  function removeJob(jobId: number) {
+    databasePromise.then((db) => {
+      db.execute("DELETE FROM job_info WHERE id = $1;", [jobId]).then(() => {
+        list.value = list.value.filter((job) => job.id !== jobId);
+        if (currentJob.value?.id === jobId) {
+          currentJobIndex.value = -1;
+        }
+      });
+    });
+  }
+
   function setCurrent(jobId: number) {
     currentJobIndex.value = list.value.findIndex((job) => job.id === jobId);
   }
@@ -44,7 +57,7 @@ const useJobStore = defineStore("job", () => {
     databasePromise.then((db) => {
       let currentJobId = currentJob.value?.id;
       db.select<JobInfo[]>(
-        "SELECT id, name, queue, num_cpu FROM job_info;"
+        "SELECT id, name, queue, num_cpu, parameters FROM job_info;"
       ).then((jobList) => {
         list.value = jobList;
 
@@ -64,6 +77,7 @@ const useJobStore = defineStore("job", () => {
     list,
     currentJob,
     addJob,
+    removeJob,
     updateList,
     setCurrent,
   };

@@ -13,6 +13,6 @@ export default [
   {
     name: "dashboard",
     path: "/dashboard",
-    component: () => import("@/views/Dashboard.vue"),
+    component: () => import("@/views/SolutionProcess.vue"),
   },
 ] as RouteRecordRaw[];

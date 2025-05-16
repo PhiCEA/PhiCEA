@@ -7,12 +7,10 @@
   >
     <n-drawer-content>
       <template #header>
-        <div class="flex justify-between items-center">
+        <n-flex justify="space-between" align="center">
           <div select-none>任务列表</div>
-          <div>
-            <n-button @click="handleImport" class="grow-0"> 导入 </n-button>
-          </div>
-        </div>
+          <n-button @click="handleImport" class="grow-0"> 导入 </n-button>
+        </n-flex>
       </template>
       <n-data-table
         :columns="columns"
@@ -48,14 +46,20 @@ import {
   NDrawerContent,
   NDataTable,
   NButton,
+  NFlex,
+  useDialog,
 } from "naive-ui";
-import { nextTick, ref } from "vue";
+import { h, nextTick, ref } from "vue";
 import { JobInfo, useJobStore } from "@/stores/job";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import { renderIcon } from "@/components/common";
+import { RowDelete } from "@vicons/carbon";
+import { ShowChartFilled } from "@vicons/material";
 
 const jobs = useJobStore();
 const message = useMessage();
+const dialog = useDialog();
 
 const show = defineModel<boolean>("show", { default: false });
 const pagination: PaginationProps = {
@@ -94,10 +98,12 @@ const options = ref([
   {
     label: "显示",
     key: "display",
+    icon: renderIcon(ShowChartFilled),
   },
   {
-    label: "删除",
+    label: () => h("span", { class: "text-red-600 font-500" }, "删除"),
     key: "delete",
+    icon: renderIcon(RowDelete),
   },
 ]);
 const showDropdown = ref(false);
@@ -115,8 +121,16 @@ const handleSelect = (key: string | number, _option: DropdownOption) => {
     message.info(`显示  ${dropDownSelectedId.value!}`);
     dropDownSelectedId.value = null;
   } else if (key === "delete") {
-    // TODO: delete job
-    message.info(`删除  ${dropDownSelectedId.value!}`);
+    dialog.warning({
+      title: "删除任务",
+      content: `确定要删除任务 ${dropDownSelectedId.value} 吗？`,
+      positiveText: "删除",
+      negativeText: "取消",
+      onPositiveClick: () => {
+        jobs.removeJob(dropDownSelectedId.value!);
+        message.success(`删除成功  ${dropDownSelectedId.value}`);
+      },
+    });
   }
 };
 

@@ -5,7 +5,9 @@
     :theme-overrides="themeOverrides"
   >
     <n-message-provider>
-      <layout />
+      <n-dialog-provider>
+        <layout />
+      </n-dialog-provider>
     </n-message-provider>
   </n-config-provider>
 </template>
@@ -14,6 +16,7 @@
 import {
   NMessageProvider,
   NConfigProvider,
+  NDialogProvider,
   zhCN,
   dateZhCN,
   GlobalThemeOverrides,
