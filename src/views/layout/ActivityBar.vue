@@ -1,5 +1,5 @@
 <template>
-  <n-flex :size="0" vertical align="center">
+  <n-flex :size="0" vertical align="center" h-full>
     <n-popover
       style="padding: 5px 10px"
       trigger="hover"
@@ -48,17 +48,35 @@
         </template>
       </n-popover>
     </template>
+
+    <div class="grow"></div>
+    <n-flex
+      class="h-10 w-full cursor-pointer"
+      color="hover:#1f1f1f #616161"
+      align="center"
+      justify="center"
+      @click="openSettingsModal"
+    >
+      <n-icon :size="24">
+        <settings-icon></settings-icon>
+      </n-icon>
+    </n-flex>
+    <div class="basis-2"></div>
   </n-flex>
   <job-explorer v-model:show="showExplorer" />
+  <suspense>
+    <settings v-model:show="showSettingsModal" />
+  </suspense>
 </template>
 
 <script setup lang="ts">
 import { NFlex, NPopover, NIcon } from "naive-ui";
 import { ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-import { ChartLineData } from "@vicons/carbon";
+import { ChartLineData, Settings as SettingsIcon } from "@vicons/carbon";
 import { AppsList24Regular } from "@vicons/fluent";
 import JobExplorer from "./JobExplorer.vue";
+import Settings from "./Settings.vue";
 
 const activities = [
   {
@@ -89,6 +107,13 @@ const popoverDelay = 500; // ms
 const showExplorer = ref(false);
 const toggleExplorer = () => {
   showExplorer.value = !showExplorer.value;
+};
+
+/* Settings */
+// 打开设置弹窗
+const showSettingsModal = ref(false);
+const openSettingsModal = () => {
+  showSettingsModal.value = true;
 };
 </script>
 

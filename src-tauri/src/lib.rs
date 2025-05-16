@@ -3,7 +3,7 @@ mod error;
 
 use sqlx::PgPool;
 use tauri::async_runtime;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 
 type Result<T> = std::result::Result<T, error::Error>;
 
@@ -15,12 +15,12 @@ type Result<T> = std::result::Result<T, error::Error>;
 //     error_phi: f64,
 // }
 
-#[derive(serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
 struct AppConfig {
     database: DatabaseConfig,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
 struct DatabaseConfig {
     user: String,
     password: String,
@@ -38,20 +38,9 @@ impl DatabaseConfig {
     }
 }
 
-fn load_config() -> Result<AppConfig> {
-    let config_file_path = if cfg!(debug_assertions) {
-        // vite dev server serves config.json from /public
-        "../public/config.json"
-    } else {
-        "config.json"
-    };
-    let config_file = std::fs::read_to_string(config_file_path)?;
-    Ok(serde_json::from_str(&config_file)?)
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let config = load_config().unwrap();
+    let config = command::read_config().unwrap();
     let pool =
         async_runtime::block_on(async { PgPool::connect(&config.database.url()).await.unwrap() });
 
@@ -59,8 +48,12 @@ pub fn run() {
         .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .manage(Mutex::new(pool))
-        .invoke_handler(tauri::generate_handler![command::import_log])
+        .manage(RwLock::new(pool))
+        .invoke_handler(tauri::generate_handler![
+            command::import_log,
+            command::read_config,
+            command::write_config
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

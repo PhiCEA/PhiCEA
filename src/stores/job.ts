@@ -1,6 +1,6 @@
-import { useDatabase } from "@/components/common";
-import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { defineStore, storeToRefs } from "pinia";
+import { computed, ref, watch } from "vue";
+import { useDatabaseStore } from "./database";
 
 export interface JobInfo {
   id: number;
@@ -12,7 +12,8 @@ export interface JobInfo {
 
 // FIXME: 错误处理 addJob, removeJob
 const useJobStore = defineStore("job", () => {
-  const databasePromise = useDatabase();
+  const database = useDatabaseStore();
+  const { promise: dbPromise } = storeToRefs(database);
 
   const list = ref<JobInfo[]>([]);
   const currentJobIndex = ref(-1);
@@ -25,7 +26,7 @@ const useJobStore = defineStore("job", () => {
   });
 
   function addJob(jobId: number) {
-    databasePromise.then((db) => {
+    dbPromise.value.then((db) => {
       db.select<JobInfo[]>(
         "SELECT id, name, queue, num_cpu FROM job_info WHERE id = $1;",
         [jobId]
@@ -39,7 +40,7 @@ const useJobStore = defineStore("job", () => {
   }
 
   function removeJob(jobId: number) {
-    databasePromise.then((db) => {
+    dbPromise.value.then((db) => {
       db.execute("DELETE FROM job_info WHERE id = $1;", [jobId]).then(() => {
         list.value = list.value.filter((job) => job.id !== jobId);
         if (currentJob.value?.id === jobId) {
@@ -54,25 +55,36 @@ const useJobStore = defineStore("job", () => {
   }
 
   function updateList() {
-    databasePromise.then((db) => {
+    dbPromise.value.then((db) => {
       let currentJobId = currentJob.value?.id;
       db.select<JobInfo[]>(
         "SELECT id, name, queue, num_cpu, parameters FROM job_info;"
-      ).then((jobList) => {
-        list.value = jobList;
+      )
+        .then((jobList) => {
+          list.value = jobList;
 
-        if (currentJobIndex.value < 0) {
-          // first time
-          currentJobIndex.value = 0;
-        } else if (currentJobId) {
-          // update job list
-          setCurrent(currentJobId);
-        }
-      });
+          if (currentJobIndex.value < 0) {
+            // first time
+            currentJobIndex.value = 0;
+          } else if (currentJobId) {
+            // update job list
+            setCurrent(currentJobId);
+          }
+        })
+        .catch((reason) => {
+          console.error(reason);
+          list.value = [];
+        });
     });
   }
 
-  updateList();
+  watch(
+    dbPromise,
+    (_curr, _prev) => {
+      updateList();
+    },
+    { immediate: true }
+  );
   return {
     list,
     currentJob,

@@ -9,7 +9,12 @@
       <template #header>
         <n-flex justify="space-between" align="center">
           <div select-none>任务列表</div>
-          <n-button @click="handleImport" class="grow-0"> 导入 </n-button>
+          <n-button @click="handleImport" secondary>
+            <template #icon>
+              <div class="i-line-md:file-import-filled"></div>
+            </template>
+            导入
+          </n-button>
         </n-flex>
       </template>
       <n-data-table

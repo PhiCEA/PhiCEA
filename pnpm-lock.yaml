@@ -29,6 +29,9 @@ importers:
       echarts:
         specifier: ^5.6.0
         version: 5.6.0
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       pinia:
         specifier: ^3.0.2
         version: 3.0.2(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3))
@@ -42,9 +45,33 @@ importers:
         specifier: '4'
         version: 4.5.1(vue@3.5.13(typescript@5.6.3))
     devDependencies:
+      '@iconify-json/fluent':
+        specifier: ^1.2.21
+        version: 1.2.21
+      '@iconify-json/ic':
+        specifier: ^1.2.2
+        version: 1.2.2
+      '@iconify-json/line-md':
+        specifier: ^1.2.8
+        version: 1.2.8
+      '@iconify-json/pepicons-pop':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@iconify-json/svg-spinners':
+        specifier: ^1.2.2
+        version: 1.2.2
+      '@iconify-json/tabler':
+        specifier: ^1.2.17
+        version: 1.2.17
       '@tauri-apps/cli':
         specifier: ^2
         version: 2.4.1
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
+      '@unocss/preset-icons':
+        specifier: ^66.1.2
+        version: 66.1.2
       '@vicons/antd':
         specifier: ^0.13.0
         version: 0.13.0
@@ -81,6 +108,9 @@ importers:
       unocss:
         specifier: 66.1.0-beta.10
         version: 66.1.0-beta.10(postcss@8.5.3)(vite@6.2.5(@types/node@22.14.1)(jiti@2.4.2))(vue@3.5.13(typescript@5.6.3))
+      unocss-preset-animations:
+        specifier: ^1.2.1
+        version: 1.2.1(unocss@66.1.0-beta.10(postcss@8.5.3)(vite@6.2.5(@types/node@22.14.1)(jiti@2.4.2))(vue@3.5.13(typescript@5.6.3)))
       url:
         specifier: ^0.11.4
         version: 0.11.4
@@ -411,6 +441,24 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@iconify-json/fluent@1.2.21':
+    resolution: {integrity: sha512-nLX6I/+KuW4XapOjShZYSCS3Ze+CVqG2ORwCqxC2KTvDiSgsPlYtz3kJ5F1KRzurIij/iskHj36kXxItP4eRdQ==}
+
+  '@iconify-json/ic@1.2.2':
+    resolution: {integrity: sha512-QmjwS3lYiOmVWgTCEOTFyGODaR/+689+ajep/VsrCcsUN0Gdle5PmIcibDsdmRyrOsW/E77G41UUijdbjQUofw==}
+
+  '@iconify-json/line-md@1.2.8':
+    resolution: {integrity: sha512-jWFsu6OZ1xAd4U0MLc/dgawC8nCbSn+a+WjTv+luiihpb6rrGLMw+Vy3wQ01hGf77v+fwt8sTvwm6K9zN3r4vQ==}
+
+  '@iconify-json/pepicons-pop@1.2.1':
+    resolution: {integrity: sha512-fHallzdXe+eTCCPK4Hs/XrMZnCsSMzU4GW+/lmoIO8qtPqcGR/vC0Ouj9hfryAarogWl0YZkb1rlakTYKt9y3g==}
+
+  '@iconify-json/svg-spinners@1.2.2':
+    resolution: {integrity: sha512-DIErwfBWWzLfmAG2oQnbUOSqZhDxlXvr8941itMCrxQoMB0Hiv8Ww6Bln/zIgxwjDvSem2dKJtap+yKKwsB/2A==}
+
+  '@iconify-json/tabler@1.2.17':
+    resolution: {integrity: sha512-Jfk20IC/n7UOQQSXM600BUhAwEfg8KU1dNUF+kg4eRhbET5w1Ktyax7CDx8Z8y0H6+J/8//AXpJOEgG8YoP8rw==}
+
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
 
@@ -698,6 +746,9 @@ packages:
   '@unocss/core@66.1.0-beta.10':
     resolution: {integrity: sha512-zYn5kmrmmaEQ81+CkoRcNYaMgUePb85RCIr3oty3yc4tFtJHymHuv+4NKoWWZzfhdfVKeK2y7U9wpLcfcbIiew==}
 
+  '@unocss/core@66.1.2':
+    resolution: {integrity: sha512-mN9h1hHEuhDcdbI4z74o7UnxlBZYVsJpYcdC1YLWBKROcLYTkuyZ7hgBzpo1FBNox2Bt3JnrSinVDmc44Bxjow==}
+
   '@unocss/extractor-arbitrary-variants@66.1.0-beta.10':
     resolution: {integrity: sha512-qxeScl5guWtlNNUxcOFI12WTLkivao/4vIJW2uJfxuDVlUlBtrB6dw/SL40CVlosZemvM24Boo4U/xjWeh/oCA==}
 
@@ -715,6 +766,9 @@ packages:
 
   '@unocss/preset-icons@66.1.0-beta.10':
     resolution: {integrity: sha512-Ms5CawV26GNi5iN/l9eIohKLcqh5QCA8F5cgJs5zW3kQ31YorveOOyg3QTpHAC4Dln5sZ9/4RplAWObGr2ppiQ==}
+
+  '@unocss/preset-icons@66.1.2':
+    resolution: {integrity: sha512-14390jFBJ2anuKvjX9TeRCm7adNjR/mey0bh0+S/k/5W3VugIY2y0E+OH3m+sx5d/5ZUYbYkUGsmtuKbVNwwxQ==}
 
   '@unocss/preset-mini@66.1.0-beta.10':
     resolution: {integrity: sha512-KqYstZZnOTHvMWAt3Q0UgZipDvvcbYyjpkbSD4Ki8nzHNjF9OJnQHqGTfxvjbiw5Yl27wcB0v4ueOksMENhRrA==}
@@ -1506,6 +1560,15 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
+  unocss-preset-animations@1.2.1:
+    resolution: {integrity: sha512-HFdYPSLZ8SaAgTLfTNoiV5+1xAdcttOtFSPsZyHbA0qSis7Sansf90pz7a2yhs9Yq6Nos9P4onDttfdO8dwKPA==}
+    peerDependencies:
+      '@unocss/preset-wind3': '>=0.56.0 < 101'
+      unocss: '>=0.56.0 < 101'
+    peerDependenciesMeta:
+      '@unocss/preset-wind3':
+        optional: true
+
   unocss@66.1.0-beta.10:
     resolution: {integrity: sha512-20S2TqwDbjO/DSAphraRpozI4cs29IFR7vIQJwAPk8FiJnW65uN+Pdvf+LMNHJM0Xw+lNQkYX/+O71BEO0eCPg==}
     engines: {node: '>=14'}
@@ -1969,6 +2032,30 @@ snapshots:
   '@esbuild/win32-x64@0.25.2':
     optional: true
 
+  '@iconify-json/fluent@1.2.21':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/ic@1.2.2':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/line-md@1.2.8':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/pepicons-pop@1.2.1':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/svg-spinners@1.2.2':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/tabler@1.2.17':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify/types@2.0.0': {}
 
   '@iconify/utils@2.3.0':
@@ -2192,6 +2279,8 @@ snapshots:
 
   '@unocss/core@66.1.0-beta.10': {}
 
+  '@unocss/core@66.1.2': {}
+
   '@unocss/extractor-arbitrary-variants@66.1.0-beta.10':
     dependencies:
       '@unocss/core': 66.1.0-beta.10
@@ -2224,6 +2313,14 @@ snapshots:
     dependencies:
       '@iconify/utils': 2.3.0
       '@unocss/core': 66.1.0-beta.10
+      ofetch: 1.4.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@unocss/preset-icons@66.1.2':
+    dependencies:
+      '@iconify/utils': 2.3.0
+      '@unocss/core': 66.1.2
       ofetch: 1.4.1
     transitivePeerDependencies:
       - supports-color
@@ -3091,6 +3188,10 @@ snapshots:
   unicorn-magic@0.3.0: {}
 
   universalify@2.0.1: {}
+
+  unocss-preset-animations@1.2.1(unocss@66.1.0-beta.10(postcss@8.5.3)(vite@6.2.5(@types/node@22.14.1)(jiti@2.4.2))(vue@3.5.13(typescript@5.6.3))):
+    dependencies:
+      unocss: 66.1.0-beta.10(postcss@8.5.3)(vite@6.2.5(@types/node@22.14.1)(jiti@2.4.2))(vue@3.5.13(typescript@5.6.3))
 
   unocss@66.1.0-beta.10(postcss@8.5.3)(vite@6.2.5(@types/node@22.14.1)(jiti@2.4.2))(vue@3.5.13(typescript@5.6.3)):
     dependencies:

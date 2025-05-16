@@ -1,11 +1,11 @@
-use super::Result;
+use super::{AppConfig, Result};
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
 use sqlx::{Executor, PgPool};
 use std::{fs, path::PathBuf};
 use tauri::State;
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 
 #[derive(Debug)]
 struct JobInfo {
@@ -25,7 +25,7 @@ lazy_static! {
 }
 
 #[tauri::command]
-pub async fn import_log(file: PathBuf, pool: State<'_, Mutex<PgPool>>) -> Result<i64> {
+pub async fn import_log(file: PathBuf, pool: State<'_, RwLock<PgPool>>) -> Result<i64> {
     let content = fs::read_to_string(file)?;
     let (job_info, logs) = parse_log_csv(&content)?;
 
@@ -39,7 +39,7 @@ pub async fn import_log(file: PathBuf, pool: State<'_, Mutex<PgPool>>) -> Result
         .bind(&job_info.nodes[..])
         .bind(&job_info.parameters);
 
-    let pool = pool.lock().await;
+    let pool = pool.blocking_read();
     let mut trans = pool.begin().await?;
     trans.execute(insert_job_info).await?;
     let mut stream = trans.copy_in_raw("COPY error_log (timestamp, load, iter, error_u, error_phi, job_id) FROM STDIN (FORMAT csv);").await?;
@@ -102,4 +102,43 @@ fn parse_log_csv(logs: &str) -> Result<(JobInfo, String)> {
         .collect::<String>();
 
     Ok((job_info, logs))
+}
+
+macro_rules! public_resource {
+    ($path:expr) => {{
+        use std::path::{Path, PathBuf};
+        #[cfg(debug_assertions)]
+        {
+            let path = Path::new($path);
+            let mut public_path = PathBuf::from("../public");
+            public_path.push(path);
+            public_path
+        }
+
+        #[cfg(not(debug_assertions))]
+        {
+            Path::from($path)
+        }
+    }};
+}
+
+#[tauri::command]
+pub fn read_config() -> Result<AppConfig> {
+    let config = std::fs::read_to_string(public_resource!("config.json"))?;
+    Ok(serde_json::from_str(&config)?)
+}
+
+/// 配置写入文件
+/// 
+/// 建议调用时前端保证 `config` 与原始不同
+#[tauri::command]
+pub async fn write_config(config: AppConfig, pool: State<'_, RwLock<PgPool>>) -> Result<()> {
+    let mut pool = pool.write().await;
+    *pool = PgPool::connect(&config.database.url()).await?;
+
+    std::fs::write(
+        public_resource!("config.json"),
+        serde_json::to_string_pretty(&config)?,
+    )?;
+    Ok(())
 }

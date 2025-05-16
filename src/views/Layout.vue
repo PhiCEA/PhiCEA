@@ -1,6 +1,11 @@
 <template>
   <n-layout has-sider h-screen>
-    <n-layout-sider bordered :width="48" :native-scrollbar="false">
+    <n-layout-sider
+      bordered
+      :width="48"
+      :native-scrollbar="false"
+      content-class="h-full"
+    >
       <activity-bar></activity-bar>
     </n-layout-sider>
     <n-layout-content>

@@ -14,7 +14,7 @@
         </template>
       </n-button>
       <n-divider vertical />
-      <n-switch v-model:value="isComparing">
+      <n-switch v-model:value="isComparing" :rail-style="railStyle">
         <template #checked-icon>
           <n-icon :component="RectangleLandscape12Regular" />
         </template>
@@ -74,8 +74,10 @@ import {
   NEllipsis,
   NDivider,
   NSwitch,
+  useThemeVars,
 } from "naive-ui";
 import { IosArrowDown, IosArrowUp } from "@vicons/ionicons4";
+import type { CSSProperties } from "vue";
 import { computed, ref } from "vue";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
@@ -133,6 +135,7 @@ type EChartsOption = ComposeOption<
 
 const logs = useLogStore();
 const jobs = useJobStore();
+const themeVars = useThemeVars();
 
 /*  模型详情  */
 const displayDetails = ref(true);
@@ -161,6 +164,22 @@ const detailsOptions = computed(() => [
 ]);
 
 /* 折线图 */
+const railStyle = ({ focused, checked }: { focused: boolean; checked: boolean }) => {
+  const style: CSSProperties = {};
+  if (checked) {
+    style.background = themeVars.value.primaryColor;
+    if (focused) {
+      style.boxShadow = `0 0 0 2px ${themeVars.value.primaryColor}40`;
+    }
+  } else {
+    style.background = "#0078d4";
+    if (focused) {
+      style.boxShadow = "0 0 0 2px #0078d440";
+    }
+  }
+  return style;
+};
+
 const isComparing = ref(false);
 const chartHeightClass = computed(() => [
   isComparing.value ? "h-full" : "h-50vh",
