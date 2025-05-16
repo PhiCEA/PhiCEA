@@ -107,9 +107,9 @@ fn parse_log_csv(logs: &str) -> Result<(JobInfo, String)> {
 #[macro_export]
 macro_rules! public_resource {
     ($path:expr) => {{
-        use std::path::{Path, PathBuf};
         #[cfg(debug_assertions)]
         {
+            use std::path::{Path, PathBuf};
             let path = Path::new(file!());
             let file_name = path.file_name().unwrap();
             let base_path = path
@@ -123,7 +123,8 @@ macro_rules! public_resource {
 
         #[cfg(not(debug_assertions))]
         {
-            Path::from($path)
+            use std::path::Path;
+            Path::new($path)
         }
     }};
 }
