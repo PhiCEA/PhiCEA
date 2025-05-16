@@ -104,14 +104,20 @@ fn parse_log_csv(logs: &str) -> Result<(JobInfo, String)> {
     Ok((job_info, logs))
 }
 
+#[macro_export]
 macro_rules! public_resource {
     ($path:expr) => {{
         use std::path::{Path, PathBuf};
         #[cfg(debug_assertions)]
         {
-            let path = Path::new($path);
-            let mut public_path = PathBuf::from("../public");
-            public_path.push(path);
+            let path = Path::new(file!());
+            let file_name = path.file_name().unwrap();
+            let base_path = path
+                .iter()
+                .filter(|&part| !part.eq_ignore_ascii_case(file_name))
+                .collect::<PathBuf>();
+            let mut public_path = base_path.join("../../public");
+            public_path.push($path);
             public_path
         }
 
@@ -129,7 +135,7 @@ pub fn read_config() -> Result<AppConfig> {
 }
 
 /// 配置写入文件
-/// 
+///
 /// 建议调用时前端保证 `config` 与原始不同
 #[tauri::command]
 pub async fn write_config(config: AppConfig, pool: State<'_, RwLock<PgPool>>) -> Result<()> {

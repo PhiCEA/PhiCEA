@@ -40,6 +40,13 @@ impl DatabaseConfig {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    if !std::fs::exists(public_resource!("config.json")).unwrap() {
+        std::fs::copy(
+            public_resource!("config.example.json"),
+            public_resource!("config.json"),
+        )
+        .unwrap();
+    }
     let config = command::read_config().unwrap();
     let pool =
         async_runtime::block_on(async { PgPool::connect(&config.database.url()).await.unwrap() });
