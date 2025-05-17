@@ -71,12 +71,12 @@
 
 <script setup lang="ts">
 import { NFlex, NPopover, NIcon } from "naive-ui";
-import { ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { ChartLineData, Settings as SettingsIcon } from "@vicons/carbon";
 import { AppsList24Regular } from "@vicons/fluent";
-import JobExplorer from "./JobExplorer.vue";
-import Settings from "./Settings.vue";
+const Settings = defineAsyncComponent(() => import("./Settings.vue"));
+const JobExplorer = defineAsyncComponent(() => import("./JobExplorer.vue"));
 
 const activities = [
   {
