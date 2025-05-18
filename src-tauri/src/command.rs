@@ -39,7 +39,7 @@ pub async fn import_log(file: PathBuf, pool: State<'_, RwLock<PgPool>>) -> Resul
         .bind(&job_info.nodes[..])
         .bind(&job_info.parameters);
 
-    let pool = pool.blocking_read();
+    let pool = pool.read().await;
     let mut trans = pool.begin().await?;
     trans.execute(insert_job_info).await?;
     let mut stream = trans.copy_in_raw("COPY error_log (timestamp, load, iter, error_u, error_phi, job_id) FROM STDIN (FORMAT csv);").await?;
