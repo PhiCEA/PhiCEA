@@ -28,7 +28,7 @@ const useJobStore = defineStore("job", () => {
   function addJob(jobId: number) {
     dbPromise.value.then((db) => {
       db.select<JobInfo[]>(
-        "SELECT id, name, queue, num_cpu FROM job_info WHERE id = $1;",
+        "SELECT id, name, queue, num_cpu, parameters FROM job_info WHERE id = $1;",
         [jobId]
       ).then((newJob) => {
         const job = newJob[0];
