@@ -1,9 +1,15 @@
+mod error_log;
+mod job;
+
+pub use error_log::*;
+pub use job::*;
+
 use super::{AppConfig, Result};
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
-use sqlx::{Executor, PgPool};
-use std::{fs, path::PathBuf};
+use sqlx::{postgres::{PgArguments, PgRow}, Executor, PgPool};
+use std::{fs, ops::Deref, path::PathBuf};
 use tauri::State;
 use tokio::sync::RwLock;
 
@@ -147,5 +153,23 @@ pub async fn write_config(config: AppConfig, pool: State<'_, RwLock<PgPool>>) ->
         public_resource!("config.json"),
         serde_json::to_string_pretty(&config)?,
     )?;
+    Ok(())
+}
+
+/// 通用函数，适用于不同的 SQL 查询和参数
+async fn query_as_and_send<'q, T>(
+    stmt: &'q str,
+    arguments: PgArguments,
+    pool: State<'_, RwLock<PgPool>>,
+    channel: tauri::ipc::Channel<Vec<u8>>,
+) -> Result<()>
+where
+    T: Send + Unpin + serde::Serialize + for<'r> sqlx::FromRow<'r, PgRow>,
+{
+    let pool = pool.read().await;
+    let data = sqlx::query_as_with::<_, T, PgArguments>(stmt, arguments)
+        .fetch_all(pool.deref())
+        .await?;
+    channel.send(rmp_serde::to_vec(&data)?)?;
     Ok(())
 }

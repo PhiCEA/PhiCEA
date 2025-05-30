@@ -91,7 +91,7 @@ function createColumns(): DataTableColumns<JobInfo> {
     },
     {
       title: "核数",
-      key: "num_cpu",
+      key: "cpus",
       width: 30,
     },
   ];

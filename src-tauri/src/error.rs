@@ -11,7 +11,13 @@ pub enum Error {
     #[error(transparent)]
     Sqlx(#[from] sqlx::Error),
 
-    // #[error("Custom error: {0}")]
+    #[error(transparent)]
+    Tauri(#[from] tauri::Error),
+
+    #[error(transparent)]
+    MsgPackEncode(#[from] rmp_serde::encode::Error),
+
+    // #[error("{0}")]
     // Custom(String),
 }
 
