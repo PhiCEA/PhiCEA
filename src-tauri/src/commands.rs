@@ -8,7 +8,10 @@ use super::{AppConfig, Result};
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
-use sqlx::{postgres::{PgArguments, PgRow}, Executor, PgPool};
+use sqlx::{
+    postgres::{PgArguments, PgRow},
+    Executor, PgPool,
+};
 use std::{fs, ops::Deref, path::PathBuf};
 use tauri::State;
 use tokio::sync::RwLock;
