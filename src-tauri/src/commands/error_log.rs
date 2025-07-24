@@ -27,6 +27,10 @@ pub(crate) struct ErrorLogSummary {
     cost: Option<f64>,
 }
 
+/// 缓存结构体，用于存储压缩后的日志数据。
+///
+/// 该缓存使用 LRU（最近最少使用）策略来管理缓存项，
+/// 并使用 Gzip 压缩/解压数据以减少内存占用。
 pub struct Cache {
     map: AHashMap<i64, Vec<u8>>,
     queue: VecDeque<i64>,
@@ -74,6 +78,13 @@ impl Cache {
         Ok(())
     }
 
+    pub fn remove(&mut self, key: i64) {
+        if self.has(key) {
+            self.map.remove(&key);
+            self.queue.retain(|x| *x != key);
+        }
+    }
+
     pub fn clear(&mut self) {
         self.map.clear();
         self.queue.clear();
@@ -88,10 +99,13 @@ pub async fn get_error_log(
     pool: State<'_, RwLock<PgPool>>,
     app: AppHandle,
 ) -> Result<()> {
+    // 先查询缓存
     if let Some(ceched_rmp) = cache.read().await.get(job_id) {
         channel.send(ceched_rmp)?;
         return Ok(());
     }
+
+    // 没有缓存，再查询数据库
     let stmt_details = r#"
             SELECT 
                 (ROW_NUMBER() OVER (ORDER BY timestamp))::INTEGER as iters, load, error_u, error_phi 

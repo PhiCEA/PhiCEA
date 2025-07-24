@@ -1,5 +1,6 @@
 use std::ops::Deref;
 
+use crate::commands::Cache;
 use crate::error::Error;
 
 use super::{query_as_and_send, Result};
@@ -45,7 +46,8 @@ pub async fn find_job(job_id: i64, pool: State<'_, RwLock<PgPool>>) -> Result<Jo
 }
 
 #[tauri::command]
-pub async fn remove_job(job_id: i64, pool: State<'_, RwLock<PgPool>>) -> Result<()> {
+pub async fn remove_job(job_id: i64, pool: State<'_, RwLock<PgPool>>, cache: State<'_, RwLock<Cache>>,) -> Result<()> {
+    cache.write().await.remove(job_id);
     let stmt = r#"
         DELETE FROM job_info 
         WHERE id = $1;"#;
