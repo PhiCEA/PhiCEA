@@ -164,3 +164,147 @@ pub async fn clear_error_log_cache(cache: State<'_, RwLock<Cache>>) -> Result<()
     cache.write().await.clear();
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cache_new() {
+        let cache = Cache::new();
+        assert_eq!(cache.map.len(), 0);
+        assert_eq!(cache.queue.len(), 0);
+        assert_eq!(cache.max_size, 8);
+    }
+
+    #[test]
+    fn test_cache_set_and_get() {
+        let mut cache = Cache::new();
+        let key = 1i64;
+        let value = b"test data";
+
+        // 设置缓存项
+        assert!(cache.set(key, value).is_ok());
+        
+        // 验证缓存项存在
+        assert!(cache.has(key));
+        
+        // 获取缓存项
+        let retrieved = cache.get(key);
+        assert!(retrieved.is_some());
+        assert_eq!(retrieved.unwrap(), value);
+    }
+
+    #[test]
+    fn test_cache_has_not_exists() {
+        let cache = Cache::new();
+        assert!(!cache.has(1));
+    }
+
+    #[test]
+    fn test_cache_get_not_exists() {
+        let cache = Cache::new();
+        assert!(cache.get(1).is_none());
+    }
+
+    #[test]
+    fn test_cache_set_duplicate() {
+        let mut cache = Cache::new();
+        let key = 1i64;
+        let value1 = b"first data";
+        let value2 = b"second data";
+
+        // 设置第一个值
+        assert!(cache.set(key, value1).is_ok());
+        
+        // 尝试设置相同的键（应该被忽略）
+        assert!(cache.set(key, value2).is_ok());
+        
+        // 验证值仍然是第一个
+        let retrieved = cache.get(key);
+        assert_eq!(retrieved.unwrap(), value1);
+    }
+
+    #[test]
+    fn test_cache_lru_eviction() {
+        let mut cache = Cache::new();
+        
+        // 填满缓存（最大容量为8）
+        for i in 0..8 {
+            let value = format!("data{}", i).into_bytes();
+            assert!(cache.set(i, &value).is_ok());
+        }
+        
+        // 验证所有项都存在
+        for i in 0..8 {
+            assert!(cache.has(i));
+        }
+        
+        // 添加第9个项，应该触发LRU驱逐（键0被移除）
+        let value = b"data8";
+        assert!(cache.set(8, value).is_ok());
+        
+        // 验证键0已被移除，其他项仍然存在
+        assert!(!cache.has(0));
+        for i in 1..=8 {
+            assert!(cache.has(i));
+        }
+    }
+
+    #[test]
+    fn test_cache_remove() {
+        let mut cache = Cache::new();
+        let key = 1i64;
+        let value = b"test data";
+
+        // 设置并确认存在
+        assert!(cache.set(key, value).is_ok());
+        assert!(cache.has(key));
+        
+        // 删除项
+        cache.remove(key);
+        
+        // 验证项已被删除
+        assert!(!cache.has(key));
+        assert!(cache.get(key).is_none());
+    }
+
+    #[test]
+    fn test_cache_clear() {
+        let mut cache = Cache::new();
+        
+        // 添加几个项
+        for i in 0..3 {
+            let value = format!("data{}", i).into_bytes();
+            assert!(cache.set(i, &value).is_ok());
+        }
+        
+        // 验证项存在
+        assert_eq!(cache.map.len(), 3);
+        assert_eq!(cache.queue.len(), 3);
+        
+        // 清空缓存
+        cache.clear();
+        
+        // 验证缓存已清空
+        assert_eq!(cache.map.len(), 0);
+        assert_eq!(cache.queue.len(), 0);
+    }
+
+    #[test]
+    fn test_cache_compression() {
+        let mut cache = Cache::new();
+        let key = 1i64;
+        
+        // 使用较大的数据测试压缩/解压缩
+        let large_data: Vec<u8> = (0..1000).map(|i| (i % 256) as u8).collect();
+        
+        // 设置缓存
+        assert!(cache.set(key, &large_data).is_ok());
+        
+        // 获取并验证数据完整性
+        let retrieved = cache.get(key);
+        assert!(retrieved.is_some());
+        assert_eq!(retrieved.unwrap(), large_data);
+    }
+}
