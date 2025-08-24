@@ -1,7 +1,9 @@
 mod commands;
+mod config;
 mod error;
 
 use commands::Cache;
+use config::AppConfig;
 use sqlx::PgPool;
 use std::path::Path;
 use tauri::async_runtime;
@@ -9,42 +11,15 @@ use tokio::sync::RwLock;
 
 type Result<T> = std::result::Result<T, error::Error>;
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
-struct AppConfig {
-    database: DatabaseConfig,
-}
-
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
-struct DatabaseConfig {
-    user: String,
-    password: String,
-    host: String,
-    port: u16,
-    database: String,
-}
-
-impl DatabaseConfig {
-    fn url(&self) -> String {
-        format!(
-            "postgres://{}:{}@{}:{}/{}",
-            &self.user, &self.password, &self.host, &self.port, &self.database
-        )
-    }
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    if !std::fs::exists(public_resource!("config.json")).unwrap() {
-        std::fs::copy(
-            public_resource!("config.example.json"),
-            public_resource!("config.json"),
-        )
-        .unwrap();
-    }
     check_salt();
-    let config = commands::read_config().unwrap();
-    let pool =
-        async_runtime::block_on(async { PgPool::connect(&config.database.url()).await.unwrap() });
+    let config = AppConfig::load().expect("Failed to load config");
+    let pool = async_runtime::block_on(async {
+        PgPool::connect(&config.database.url())
+            .await
+            .expect("Failed to connect to database")
+    });
 
     tauri::Builder::default()
         .plugin(tauri_plugin_stronghold::Builder::with_argon2(Path::new("salt")).build())
