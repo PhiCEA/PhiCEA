@@ -166,7 +166,7 @@ const handleImport = async () => {
     ],
   });
   if (file) {
-    const jobId = await invoke<number>("import_log", { file });
+    const jobId = await invoke<number>("import_error_log", { file });
     jobs.addJob(jobId);
     message.info(`导入成功  ${jobId}`);
   }

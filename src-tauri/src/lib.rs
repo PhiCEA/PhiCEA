@@ -54,7 +54,7 @@ pub fn run() {
         .manage(RwLock::new(pool))
         .manage(RwLock::new(Cache::new()))
         .invoke_handler(tauri::generate_handler![
-            commands::import_log,
+            commands::import_error_log,
             commands::read_config,
             commands::write_config,
             commands::get_total_time,

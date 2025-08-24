@@ -17,6 +17,9 @@ pub enum Error {
     #[error(transparent)]
     MsgPackEncode(#[from] rmp_serde::encode::Error),
 
+    #[error("Log format error: {0}")]
+    LogFormat(String),
+
     // #[error("{0}")]
     // Custom(String),
 }
