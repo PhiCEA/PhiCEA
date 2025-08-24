@@ -23,9 +23,6 @@ importers:
       '@tauri-apps/plugin-sql':
         specifier: ~2.2.1
         version: 2.2.1
-      '@tauri-apps/plugin-stronghold':
-        specifier: ~2.2.1
-        version: 2.2.1
       '@unocss/reset':
         specifier: 66.1.0-beta.10
         version: 66.1.0-beta.10
@@ -733,9 +730,6 @@ packages:
 
   '@tauri-apps/plugin-sql@2.2.1':
     resolution: {integrity: sha512-+pUl3uNRcIWWhU42bJVf8IUrQ2dCGyi6XUI+RZqyr0xer8BoVc1Gj7WpVvjniL73a5lpXCzs0WYdJuiPUm9gCA==}
-
-  '@tauri-apps/plugin-stronghold@2.2.1':
-    resolution: {integrity: sha512-udDth65eSYFK8MUZoc78oIu3dlg3QnFky5O9/BKmX6suuq/CgzQJQK4t71yhBmO4Ch4C2DW/Lg5CgoCLDHx6Cw==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -2373,10 +2367,6 @@ snapshots:
       '@tauri-apps/api': 2.8.0
 
   '@tauri-apps/plugin-sql@2.2.1':
-    dependencies:
-      '@tauri-apps/api': 2.8.0
-
-  '@tauri-apps/plugin-stronghold@2.2.1':
     dependencies:
       '@tauri-apps/api': 2.8.0
 

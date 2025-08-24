@@ -5,7 +5,6 @@ mod error;
 use commands::Cache;
 use config::AppConfig;
 use sqlx::PgPool;
-use std::path::Path;
 use tauri::async_runtime;
 use tokio::sync::RwLock;
 
@@ -13,7 +12,6 @@ type Result<T> = std::result::Result<T, error::Error>;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    check_salt();
     let config = AppConfig::load().expect("Failed to load config");
     let pool = async_runtime::block_on(async {
         PgPool::connect(&config.database.url())
@@ -22,7 +20,6 @@ pub fn run() {
     });
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_stronghold::Builder::with_argon2(Path::new("salt")).build())
         .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
@@ -41,11 +38,4 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-fn check_salt() {
-    if !std::fs::exists("salt").unwrap() {
-        let salt = rand::random::<[u8; 32]>();
-        std::fs::write("salt", salt).unwrap();
-    }
 }
