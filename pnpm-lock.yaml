@@ -47,6 +47,9 @@ importers:
       vue-echarts:
         specifier: ^7.0.3
         version: 7.0.3(@vue/runtime-core@3.5.19)(echarts@5.6.0)(vue@3.5.19(typescript@5.6.3))
+      vue-json-pretty:
+        specifier: ^2.5.0
+        version: 2.5.0(vue@3.5.19(typescript@5.6.3))
       vue-router:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.19(typescript@5.6.3))
@@ -1802,6 +1805,12 @@ packages:
     peerDependencies:
       vue: ^3.4.37
 
+  vue-json-pretty@2.5.0:
+    resolution: {integrity: sha512-nZA6qXYaiMaE2J0HkKtkrLcPJoN03SDSBdZWEPiRwoOVySWOfoZCyadhBwBN6wAHTga+c/R49ExGWoKFXnu37A==}
+    engines: {node: '>= 10.0.0', npm: '>= 5.0.0'}
+    peerDependencies:
+      vue: '>=3.0.0'
+
   vue-router@4.5.1:
     resolution: {integrity: sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw==}
     peerDependencies:
@@ -3530,6 +3539,10 @@ snapshots:
       - '@vue/composition-api'
 
   vue-flow-layout@0.1.1(vue@3.5.19(typescript@5.6.3)):
+    dependencies:
+      vue: 3.5.19(typescript@5.6.3)
+
+  vue-json-pretty@2.5.0(vue@3.5.19(typescript@5.6.3)):
     dependencies:
       vue: 3.5.19(typescript@5.6.3)
 
