@@ -85,7 +85,6 @@ import { LineChart } from "echarts/charts";
 import {
   TooltipComponent,
   GridComponent,
-  ToolboxComponent,
   DataZoomComponent,
   LegendComponent,
   DatasetComponent,
@@ -96,7 +95,6 @@ import type { LineSeriesOption } from "echarts/charts";
 import type {
   TooltipComponentOption,
   GridComponentOption,
-  ToolboxComponentOption,
   DataZoomComponentOption,
   LegendComponentOption,
   DatasetComponentOption,
@@ -113,7 +111,6 @@ import { RectangleLandscape12Regular } from "@vicons/fluent";
 use([
   TooltipComponent,
   GridComponent,
-  ToolboxComponent,
   DataZoomComponent,
   LineChart,
   CanvasRenderer,
@@ -124,7 +121,6 @@ use([
 type EChartsOption = ComposeOption<
   | TooltipComponentOption
   | GridComponentOption
-  | ToolboxComponentOption
   | DataZoomComponentOption
   | LineSeriesOption
   | LegendComponentOption
@@ -313,13 +309,6 @@ const optionSummary = computed<EChartsOption>(() => ({
       },
     },
   ],
-  toolbox: {
-    feature: {
-      dataZoom: {
-        yAxisIndex: "none",
-      },
-    },
-  },
   dataZoom: [
     {
       type: "slider",
@@ -454,14 +443,6 @@ const optionError = computed<EChartsOption>(() => ({
       },
       fontSize: axisLabelSize,
       fontFamily: "Noto Sans SC",
-    },
-  },
-  toolbox: {
-    right: 10,
-    feature: {
-      dataZoom: {
-        yAxisIndex: "none",
-      },
     },
   },
   dataZoom: [

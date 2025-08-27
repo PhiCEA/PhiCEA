@@ -2,11 +2,21 @@ import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "url";
 import vue from "@vitejs/plugin-vue";
 import UnoCSS from "unocss/vite";
-import vueDevTools from 'vite-plugin-vue-devtools';
+import vueDevTools from "vite-plugin-vue-devtools";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [vue(), UnoCSS(), vueDevTools()],
+  plugins: [
+    vue(),
+    UnoCSS(),
+    vueDevTools(),
+    visualizer({
+      filename: "dist/stats.html",
+      open: true, // 构建完成后自动打开报告页面
+      gzipSize: true, // 显示 gzip 压缩大小
+    }),
+  ],
 
   resolve: {
     alias: [

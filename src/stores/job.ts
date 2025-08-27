@@ -1,19 +1,20 @@
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
-import { useDatabaseStore } from "./database";
+import { Channel, invoke } from "@tauri-apps/api/core";
+import { decode } from "@msgpack/msgpack";
+import { useConfigStore } from "./config";
 
 export interface JobInfo {
   id: number;
   name: string;
   queue: string;
-  num_cpu: number;
+  cpus: number;
   parameters?: object;
 }
 
 // FIXME: 错误处理 addJob, removeJob
 const useJobStore = defineStore("job", () => {
-  const database = useDatabaseStore();
-  const { promise: dbPromise } = storeToRefs(database);
+  const config = useConfigStore();
 
   const list = ref<JobInfo[]>([]);
   const currentJobIndex = ref(-1);
@@ -25,28 +26,20 @@ const useJobStore = defineStore("job", () => {
     }
   });
 
-  function addJob(jobId: number) {
-    dbPromise.value.then((db) => {
-      db.select<JobInfo[]>(
-        "SELECT id, name, queue, num_cpu FROM job_info WHERE id = $1;",
-        [jobId]
-      ).then((newJob) => {
-        const job = newJob[0];
-        list.value.push(job);
-        list.value.sort((a, b) => a.id - b.id);
-        currentJobIndex.value = list.value.indexOf(job);
-      });
+  function addToList(jobId: number) {
+    invoke<JobInfo>("find_job", { jobId }).then((newJob) => {
+      list.value.push(newJob);
+      list.value.sort((a, b) => a.id - b.id);
+      currentJobIndex.value = list.value.indexOf(newJob);
     });
   }
 
   function removeJob(jobId: number) {
-    dbPromise.value.then((db) => {
-      db.execute("DELETE FROM job_info WHERE id = $1;", [jobId]).then(() => {
-        list.value = list.value.filter((job) => job.id !== jobId);
-        if (currentJob.value?.id === jobId) {
-          currentJobIndex.value = -1;
-        }
-      });
+    invoke("remove_job", { jobId }).then(() => {
+      list.value = list.value.filter((job) => job.id !== jobId);
+      if (currentJob.value?.id === jobId) {
+        currentJobIndex.value = -1;
+      }
     });
   }
 
@@ -55,31 +48,36 @@ const useJobStore = defineStore("job", () => {
   }
 
   function updateList() {
-    dbPromise.value.then((db) => {
-      let currentJobId = currentJob.value?.id;
-      db.select<JobInfo[]>(
-        "SELECT id, name, queue, num_cpu, parameters FROM job_info;"
-      )
-        .then((jobList) => {
-          list.value = jobList;
+    let currentJobId = currentJob.value?.id;
+    const channel = new Channel();
+    channel.onmessage = (response) => {
+      const jobList = decode(response as ArrayBuffer) as Array<
+        [number, string, string, number, object]
+      >;
+      list.value = jobList.map(([id, name, queue, cpus, parameters]) => ({
+        id,
+        name,
+        queue,
+        cpus,
+        parameters,
+      }));
 
-          if (currentJobIndex.value < 0) {
-            // first time
-            currentJobIndex.value = 0;
-          } else if (currentJobId) {
-            // update job list
-            setCurrent(currentJobId);
-          }
-        })
-        .catch((reason) => {
-          console.error(reason);
-          list.value = [];
-        });
+      if (currentJobIndex.value < 0) {
+        // first time
+        currentJobIndex.value = 0;
+      } else if (currentJobId) {
+        // update job list
+        setCurrent(currentJobId);
+      }
+    };
+    invoke<JobInfo[]>("get_job_list", { channel }).catch((reason) => {
+      console.error(reason);
+      list.value = [];
     });
   }
 
   watch(
-    dbPromise,
+    ()  => config.promise,
     (_curr, _prev) => {
       updateList();
     },
@@ -88,7 +86,7 @@ const useJobStore = defineStore("job", () => {
   return {
     list,
     currentJob,
-    addJob,
+    addJob: addToList,
     removeJob,
     updateList,
     setCurrent,
