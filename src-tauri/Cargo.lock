@@ -1952,30 +1952,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "insight"
-version = "0.1.0"
-dependencies = [
- "ahash",
- "chrono",
- "flate2",
- "lazy_static",
- "rand 0.9.2",
- "rayon",
- "regex",
- "rmp-serde",
- "serde",
- "serde_json",
- "sqlx",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-opener",
- "tauri-plugin-sql",
- "thiserror 2.0.16",
- "tokio",
-]
-
-[[package]]
 name = "io-uring"
 version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3014,6 +2990,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67eabc2ef2a60eb7faa00097bd1ffdb5bd28e62bf39990626a582201b7a754e5"
 dependencies = [
  "siphasher 1.0.1",
+]
+
+[[package]]
+name = "phicea"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "chrono",
+ "flate2",
+ "lazy_static",
+ "rand 0.9.2",
+ "rayon",
+ "regex",
+ "rmp-serde",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-opener",
+ "tauri-plugin-sql",
+ "thiserror 2.0.16",
+ "tokio",
 ]
 
 [[package]]
